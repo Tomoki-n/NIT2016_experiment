@@ -60,15 +60,15 @@ void loop() {
        if (chk == 'A'){
          chk_pos(0);
        }else if(chk == 'B' ){
-        chk_pos(2);
+        chk_pos(3);
        }else if (chk == 'C'){
-        chk_pos(-2);
+        chk_pos(-3);
        }else if  (chk == 'D'){
-        chk_pos(-4);
+        chk_pos(-5);
        }else if  (chk == 'E'){
         chk_pos(5);
        }else if  (chk == 'F'){
-        chk_pos(-30);
+        //chk_pos(-30);
        }else if  (chk == 'G'){
         //chk_pos(15);
        }           

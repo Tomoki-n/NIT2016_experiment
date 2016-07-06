@@ -1,5 +1,5 @@
 //mainboard
-#define reading_sensor false
+#define reading_sensor true
 #include <Servo.h>
 
 //pin info 
@@ -45,40 +45,43 @@ void loop() {
 
 
 void chk_pos(){
- if ((s[3]==Threshold)&&(s[2]==Threshold)){
-  senddata('C'); ///-3 
- }else if ((s[1]==Threshold)&&(s[2]==Threshold)){
-  senddata('B'); ///3 
- }else if ((s[0]==Threshold)&&(s[1]==Threshold)){
-  senddata('D'); ///-5 
- }else if ((s[1]==Threshold)&&(s[2]==Threshold)){
-  senddata('B'); ///3
- }else if (s[1]==Threshold){
-  senddata('B'); ///3
- }else if (s[3]==Threshold){
-  senddata('C'); ///-3 
- }else  if(s[1] == Threshold&&s[2] == Threshold &&s[3] == Threshold){
-   senddata('A'); // 0
-  }else if(s[2] == Threshold&&s[3] == Threshold&&s[4] == Threshold){
-  senddata('B'); ///3
-  }else if(s[0] == Threshold&&s[1] == Threshold&&s[2] == Threshold){
-   senddata('C'); ///-3
-  }else if(s[2] == Threshold&&s[3] == Threshold){
-   senddata('B'); ///3
-  }else if(s[2] == Threshold&&s[4] == Threshold){
-   senddata('B'); ///3 extra
-  }else if(s[1] == Threshold&&s[2] == Threshold){
-   senddata('C'); ///-3
-  }else if(s[3] == Threshold&&s[4] == Threshold){
-  senddata('D'); ///5
-  }else if(s[0] == Threshold&&s[1] == Threshold){
-  senddata('E'); //-8
-  }else if(s[0] == Threshold){
-  senddata('F'); ///-30
-  }else if(s[4] == Threshold){
-   senddata('G'); ///15
-  }     
+  //大きな条件から細かな条件へ
+  if((s[2] == Threshold)&&(s[3] == Threshold)&&(s[4] == Threshold)){
+    //ちょい左
+    senddata('C');
+  }else if ((s[1] == Threshold)&&(s[2] == Threshold)&&(s[3] == Threshold)){
+    //真ん中
+     senddata('A');
+  }else if ((s[1] == Threshold)&&(s[2] == 1)&&(s[3] == Threshold)){
+    //ちょい右
+    senddata('B');
+  }else if ((s[0] == Threshold)&&(s[1] == Threshold)&&(s[2] == Threshold)){
+    //ちょい右
+     senddata('B');
+  }else if ((s[2] == Threshold)&&(s[3] == 0)&&(s[2] == Threshold)){
+    //やや左
+     senddata('D');
+  }else if ((s[0] == Threshold)&&(s[1] == Threshold)){
+    //やや右
+     senddata('E');
+  }else if ((s[3] == Threshold)&&(s[4] == Threshold)){
+    //やや左
+     senddata('D');
+  }else if ((s[1] == Threshold)&&(s[2] == Threshold)){
+    //ちょい右
+    senddata('B');
+  }else if ((s[2] == Threshold)&&(s[3] == Threshold)){
+    //ちょい左
+    senddata('C');
+  }else if ((s[0] == Threshold)&&(s[1] == 1)&&(s[2] == 1)){
+    //左
+    senddata('F');
+  }else if ((s[4] == Threshold)&&(s[3] == 1)&&(s[2] == 1)){
+    //左
+    senddata('G');
+  }
 
+  
   if (( side_s[0]== Threshold)&&(side_s[1]== Threshold)){
     senddata('H'); ///15
      delay(1500);
