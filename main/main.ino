@@ -88,29 +88,22 @@ void sensor_array_reset(){
 
 void read_sensor(){
     sensor_array_reset();
-//    s[0] = digitalRead(left2);
-//    s[1] = digitalRead(left1);
-//    s[2] = digitalRead(center); 
-//    s[3] = digitalRead(right1);
-//    s[4] = digitalRead(right2);
-//    side_s[0] = digitalRead(right3);
-//    side_s[1] = digitalRead(left3);
+    s[0] = digitalRead(left2);
+    s[1] = digitalRead(left1);
+    s[2] = digitalRead(center); 
+    s[3] = digitalRead(right1);
+    s[4] = digitalRead(right2);
+    side_s[0] = digitalRead(right3);
+    side_s[1] = digitalRead(left3);
 
-
-    int left2 = 2;
-int left1 = 4;
-int center = 7;
-int right1 = 8;
-int right2 = 9;
-int left3 = 13;
-int right3 = 12;
-    s[0] = PIND & _BV(left2);
-    s[1] = PIND & _BV(left1);
-    s[2] = PIND & _BV(center);
-    s[3] = PINB & _BV(right1);
-    s[4] = PINB & _BV(right2);
-    side_s[0] = PINB & _BV(right3);
-    side_s[1] = PINB & _BV(left3);
+//aaa
+//    s[0] = PIND & _BV(left2);
+//    s[1] = PIND & _BV(left1);
+//    s[2] = PIND & _BV(center);
+//    s[3] = PINB & _BV(right1);
+//    s[4] = PINB & _BV(right2);
+//    side_s[0] = PINB & _BV(right3);
+//    side_s[1] = PINB & _BV(left3);
     if (reading_sensor){
       sensor_print(); 
     }
