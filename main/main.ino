@@ -1,5 +1,5 @@
 //mainboard
-#define reading_sensor true
+#define reading_sensor false
 #include <Servo.h>
 
 //pin info 
@@ -22,13 +22,13 @@ int i = 0;
 
 void setup() {
   //init pinmode
-  pinMode(center,INPUT_PULLUP);
-  pinMode(left1,INPUT_PULLUP);
-  pinMode(right1,INPUT_PULLUP);
-  pinMode(left2,INPUT_PULLUP);
-  pinMode(right2,INPUT_PULLUP);
-  pinMode(left3,INPUT_PULLUP);
-  pinMode(right3,INPUT_PULLUP);
+  pinMode(center,INPUT);
+  pinMode(left1,INPUT);
+  pinMode(right1,INPUT);
+  pinMode(left2,INPUT);
+  pinMode(right2,INPUT);
+  pinMode(left3,INPUT);
+  pinMode(right3,INPUT);
  
    //serial open
   Serial.begin(9600);
@@ -37,36 +37,53 @@ void setup() {
 void loop() {
   read_sensor();
  
-  //chk_pos();
-  //chk_lance();
+  chk_pos();
+  chk_lance();
 
   
 }
 
 
 void chk_pos(){
-  if(s[1] == Threshold&&s[2] == Threshold &&s[3] == Threshold){
+ if ((s[3]==Threshold)&&(s[2]==Threshold)){
+  senddata('C'); ///-3 
+ }else if ((s[1]==Threshold)&&(s[2]==Threshold)){
+  senddata('B'); ///3 
+ }else if ((s[0]==Threshold)&&(s[1]==Threshold)){
+  senddata('D'); ///-5 
+ }else if ((s[1]==Threshold)&&(s[2]==Threshold)){
+  senddata('B'); ///3
+ }else if (s[1]==Threshold){
+  senddata('B'); ///3
+ }else if (s[3]==Threshold){
+  senddata('C'); ///-3 
+ }else  if(s[1] == Threshold&&s[2] == Threshold &&s[3] == Threshold){
    senddata('A'); // 0
   }else if(s[2] == Threshold&&s[3] == Threshold&&s[4] == Threshold){
   senddata('B'); ///3
-  }else if(s[0] == Threshold &&s[1] == Threshold&&s[2] == Threshold){
+  }else if(s[0] == Threshold&&s[1] == Threshold&&s[2] == Threshold){
    senddata('C'); ///-3
   }else if(s[2] == Threshold&&s[3] == Threshold){
    senddata('B'); ///3
+  }else if(s[2] == Threshold&&s[4] == Threshold){
+   senddata('B'); ///3 extra
   }else if(s[1] == Threshold&&s[2] == Threshold){
    senddata('C'); ///-3
   }else if(s[3] == Threshold&&s[4] == Threshold){
   senddata('D'); ///5
   }else if(s[0] == Threshold&&s[1] == Threshold){
-  senddata('E'); ///-8
+  senddata('E'); //-8
   }else if(s[0] == Threshold){
   senddata('F'); ///-30
   }else if(s[4] == Threshold){
    senddata('G'); ///15
-  }   
+  }     
 
- 
-   
+  if (( side_s[0]== Threshold)&&(side_s[1]== Threshold)){
+    senddata('H'); ///15
+     delay(2500);
+  }
+  
 }
 
 void chk_lance(){
@@ -79,10 +96,10 @@ void senddata(char value){
 
 void sensor_array_reset(){
     for(i=0;i<5;i++){
-        s[i] = 99; 
+        s[i] = 1; 
     } 
     for(i=0;i<2;i++){
-        side_s[i] = 99; 
+        side_s[i] = 1; 
     }
 } 
 
@@ -118,4 +135,6 @@ void sensor_print(){
   Serial.print(s[4]);
   Serial.println(side_s[1]);
 }
+
+//
 

@@ -1,5 +1,5 @@
 //subboard
-#define  s_dpos  92
+#define  s_dpos  94
 #define  l_dpos  90
 #include <Servo.h>
 
@@ -34,14 +34,15 @@ void setup() {
   Lance_servo.attach(lance_servo);
   Control_servo.attach(control_servo);
 
-  digitalWrite(leftm, LOW);
+  digitalWrite(leftm, HIGH);
   digitalWrite(leftm1, HIGH);
   
-  digitalWrite(rightm, HIGH);
-  digitalWrite(rightm1, LOW);
+   digitalWrite(f_left, HIGH);
+  digitalWrite(f_right, HIGH);
   
-  analogWrite(f_left, 255);
-  analogWrite(f_right, 255);
+  
+  
+ control_sarvo(s_dpos + 0); 
  
   //serial open
   Serial.begin(9600);
@@ -50,23 +51,26 @@ void setup() {
 }
 
 void loop() {
+   
+   
 //    // Receive buffer cheak 
   if ( Serial.available() >= sizeof(char)) {
     // check header
        char chk =  Serial.read();
        if (chk == 'A'){
+         chk_pos(0);
        }else if(chk == 'B' ){
-        chk_pos(3);
+        chk_pos(2);
        }else if (chk == 'C'){
-        chk_pos(-3);
+        chk_pos(-2);
        }else if  (chk == 'D'){
-        chk_pos(5);
+        chk_pos(-4);
        }else if  (chk == 'E'){
-        chk_pos(-8);
+        chk_pos(5);
        }else if  (chk == 'F'){
         chk_pos(-30);
        }else if  (chk == 'G'){
-        chk_pos(15);
+        //chk_pos(15);
        }           
   }
 }
