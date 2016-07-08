@@ -23,6 +23,7 @@ Servo Control_servo;
 Servo Lance_servo; 
 unsigned long time;
 unsigned long chktime;
+unsigned long curvetime;
  
 int lfm = 9;
 int rfm = 10;
@@ -31,6 +32,9 @@ int rbm = 11;
 
 boolean chk_mark = false;
 boolean first = true;
+
+int total_value = 0;
+
 //sensors read to store value
 int s[5];
 int ss[2];
@@ -76,11 +80,10 @@ void setup() {
 void loop() {
   time = millis();
   read_sensor();
-
   value_pos();
   value_lance();
   pwm_chk();
-  p++;
+
 }
 
 
@@ -114,31 +117,45 @@ void value_pos(){
      chk_pos(0);
   }else if ((s[2] == Threshold)&&(s[3] == Threshold)&&(s[4] == Threshold)){
     ////ちょい左
-     chk_pos(-3);
+     chk_pos(-2);
   }else if ((s[0] == Threshold)&&(s[1] == Threshold)&&(s[2] == Threshold)){
     ////ちょい左
-     chk_pos(3);
+     chk_pos(2);
   }else if ((s[0] == Threshold)&&(s[1] == Threshold)){
     //やや右
-     chk_pos(5);
+     chk_pos(4);
   }else if ((s[3] == Threshold)&&(s[4] == Threshold)){
     //やや左
-     chk_pos(-5);
+     chk_pos(-4);
   }else if ((s[1] == Threshold)&&(s[2] == Threshold)){
     //ちょい右
-    chk_pos(3);
+    chk_pos(2);
   }else if ((s[2] == Threshold)&&(s[3] == Threshold)){
     //ちょい左
-    chk_pos(-3);
+    chk_pos(-2);
   }else if ((s[4] == Threshold)&&chk_mark ){
-    //ちょい左
-    chk_pos(-25);
+    //左
+    curve_line();
   }else if ((s[0] == Threshold)&&chk_mark ){
-    //ちょい左
+    //右
     chk_pos(15);
   }
   
   
+}
+
+void curve_line(){
+ if ((time - curvetime) > 500){
+    chk_pos(-25);
+ }else if((time - curvetime) > 800){
+    chk_pos(-23);
+ }else if((time - curvetime) > 1000){
+    chk_pos(-20);
+ }else if((time - curvetime) > 1200){
+    chk_pos(-18);
+ }else{
+   chk_pos(-15);
+ }
 }
 
 void value_lance(){
@@ -148,6 +165,8 @@ void value_lance(){
     chk_lance(180);
   }
 }
+
+
 
 void pwm_chk(){
    if ((ss[0] == 0) && (ss[1]==0)){
@@ -161,6 +180,7 @@ void pwm_chk(){
       analogWrite(rbm,210);
       chk_mark = true;
       first = false;
+      curvetime = time;
       chktime = time;
       }else if (chk_mark&&((time - chktime) > 1500)){
       digitalWrite(lfm,HIGH);
@@ -169,6 +189,7 @@ void pwm_chk(){
       analogWrite(lbm,255);
       analogWrite(rbm,255);
       chktime = time;
+      curvetime = 0;
       }
    }
    
