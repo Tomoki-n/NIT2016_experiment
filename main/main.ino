@@ -43,16 +43,19 @@ void setup() {
   pinMode(right2,INPUT_PULLUP);
   pinMode(left3,INPUT_PULLUP);
   pinMode(right3,INPUT_PULLUP);
+ 
   pinMode(control_servo,OUTPUT);
   pinMode(lance_servo,OUTPUT);
- 
 
+  pinMode(lfm,OUTPUT);
+  pinMode(rfm,OUTPUT);
+  pinMode(lbm,OUTPUT);
+  pinMode(rbm,OUTPUT);
 
-  digitalWrite(10, HIGH);
- // digitalWrite(9, HIGH);
-  
-   digitalWrite(13, HIGH);
-  digitalWrite(12, HIGH);
+  digitalWrite(lfm,HIGH);
+  digitalWrite(rfm,HIGH);
+  analogWrite(lbm,255);
+  analogWrite(rbm,255);
   
  Control_servo.attach(control_servo);
  Lance_servo.attach(lance_servo);
