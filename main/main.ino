@@ -1,120 +1,170 @@
 //mainboard
 #define reading_sensor true
+#define  s_dpos  96
+#define  l_dpos  0
 #include <Servo.h>
 
 //pin info 
-int left2 = 2;
-int left1 = 4;
-int center = 7;
-int right1 = 8;
-int right2 = 9;
-int left3 = 13;
-int right3 = 12;
+int left2 = 19;
+int left1 = 2;
+int center = 4;
+int right1 = 7;
+int right2 = 8;
+int left3 = 12;
+int right3 = 13;
+int control_servo = 5;
+int lance_servo = 6;
 
 int dpos = 0;
 int Threshold = 0;
+
+Servo Control_servo;
+Servo Lance_servo; 
+
+int lfm = 9;
+int rfm = 10;
+int lbm = 3;
+int rbm = 11;
+
 //sensors read to store value
 int s[5];
-int side_s[2];
+int ss[2];
 int j = 0;
 int i = 0;
 
 
 void setup() {
   //init pinmode
-  pinMode(center,INPUT);
-  pinMode(left1,INPUT);
-  pinMode(right1,INPUT);
-  pinMode(left2,INPUT);
-  pinMode(right2,INPUT);
-  pinMode(left3,INPUT);
-  pinMode(right3,INPUT);
+  
+  pinMode(center,INPUT_PULLUP);
+  pinMode(left1,INPUT_PULLUP);
+  pinMode(right1,INPUT_PULLUP);
+  pinMode(left2,INPUT_PULLUP);
+  pinMode(right2,INPUT_PULLUP);
+  pinMode(left3,INPUT_PULLUP);
+  pinMode(right3,INPUT_PULLUP);
+  pinMode(control_servo,OUTPUT);
+  pinMode(lance_servo,OUTPUT);
  
+
+
+  digitalWrite(10, HIGH);
+ // digitalWrite(9, HIGH);
+  
+   digitalWrite(13, HIGH);
+  digitalWrite(12, HIGH);
+  
+ Control_servo.attach(control_servo);
+ Lance_servo.attach(lance_servo);
+  
+ chk_pos(0); 
    //serial open
   Serial.begin(9600);
 }
 
 void loop() {
+
   read_sensor();
  
-  chk_pos();
-  chk_lance();
+  value_pos();
+  value_lance();
 
   
 }
 
 
-void chk_pos(){
-  //大きな条件から細かな条件へ
+
+
+void chk_pos(int test){
+  control_sarvo(s_dpos + test); 
+}
+
+
+void chk_lance(int test) {
+  lance_sarvo(l_dpos + test); 
+}
+
+
+void lance_sarvo(int pos){
+    Lance_servo.write(pos);
+} 
+
+void control_sarvo(int pos){
+
+    Control_servo.write(s_dpos + pos);
+   
+} 
+
+
+void value_pos(){
+
+//大きな条件から細かな条件へ
   if((s[2] == Threshold)&&(s[3] == Threshold)&&(s[4] == Threshold)){
     //ちょい左
-    senddata('C');
+     chk_pos(-3);
   }else if ((s[1] == Threshold)&&(s[2] == Threshold)&&(s[3] == Threshold)){
     //真ん中
-     senddata('A');
+     chk_pos(0);
   }else if ((s[1] == Threshold)&&(s[2] == 1)&&(s[3] == Threshold)){
     //ちょい右
-    senddata('B');
+    chk_pos(3);
   }else if ((s[0] == Threshold)&&(s[1] == Threshold)&&(s[2] == Threshold)){
     //ちょい右
-     senddata('B');
+       chk_pos(3);
   }else if ((s[2] == Threshold)&&(s[3] == 0)&&(s[2] == Threshold)){
     //やや左
-     senddata('D');
+      chk_pos(-5);
   }else if ((s[0] == Threshold)&&(s[1] == Threshold)){
     //やや右
-     senddata('E');
+     chk_pos(5);
   }else if ((s[3] == Threshold)&&(s[4] == Threshold)){
     //やや左
-     senddata('D');
+     chk_pos(-5);
   }else if ((s[1] == Threshold)&&(s[2] == Threshold)){
     //ちょい右
-    senddata('B');
+    chk_pos(5);
   }else if ((s[2] == Threshold)&&(s[3] == Threshold)){
     //ちょい左
-    senddata('C');
+    chk_pos(-5);
   }else if ((s[0] == Threshold)&&(s[1] == 1)&&(s[2] == 1)){
     //左
-    senddata('F');
+    chk_pos(-35);
   }else if ((s[4] == Threshold)&&(s[3] == 1)&&(s[2] == 1)){
     //左
-    senddata('G');
-  }
-
-  
-  if (( side_s[0]== Threshold)&&(side_s[1]== Threshold)){
-    senddata('H'); ///15
-     delay(1500);
+    chk_pos(25);
   }
   
+ 
 }
 
-void chk_lance(){
-  
+void value_lance(){
+  if ((ss[0] == 0) && (ss[1]==1)){
+    chk_lance(0);
+  }else if  ((ss[0] == 1) && (ss[1]==0)){
+    chk_lance(1);
+  }
 }
 
-void senddata(char value){
-  Serial.write(value);
-}
+
 
 void sensor_array_reset(){
     for(i=0;i<5;i++){
         s[i] = 1; 
     } 
     for(i=0;i<2;i++){
-        side_s[i] = 1; 
+        ss[i] = 1; 
     }
 } 
 
 void read_sensor(){
-    sensor_array_reset();
+    //sensor_array_reset();
     s[0] = digitalRead(left2);
     s[1] = digitalRead(left1);
     s[2] = digitalRead(center); 
     s[3] = digitalRead(right1);
     s[4] = digitalRead(right2);
-    side_s[0] = digitalRead(right3);
-    side_s[1] = digitalRead(left3);
+    ss[0] = digitalRead(right3);
+    ss[1] = digitalRead(left3);
 
 //aaa
 //    s[0] = PIND & _BV(left2);
@@ -129,15 +179,57 @@ void read_sensor(){
     }
 }
 
+
+
 void sensor_print(){
-  Serial.print(side_s[0]);
+  Serial.print(ss[0]);
   Serial.print(s[0]);
   Serial.print(s[1]);
   Serial.print(s[2]);
   Serial.print(s[3]);
   Serial.print(s[4]);
-  Serial.println(side_s[1]);
+  Serial.println(ss[1]);
 }
 
+
+
+
+
 //
+//
+// 大きな条件から細かな条件へ
+//  if((s[2] == Threshold)&&(s[3] == Threshold)&&(s[4] == Threshold)){
+//    //ちょい左
+//     control_sarvo(-3);
+//  }else if ((s[1] == Threshold)&&(s[2] == Threshold)&&(s[3] == Threshold)){
+//    //真ん中
+//     control_sarvo(0);
+//  }else if ((s[1] == Threshold)&&(s[2] == 1)&&(s[3] == Threshold)){
+//    //ちょい右
+//    control_sarvo(3);
+//  }else if ((s[0] == Threshold)&&(s[1] == Threshold)&&(s[2] == Threshold)){
+//    //ちょい右
+//       control_sarvo(3);
+//  }else if ((s[2] == Threshold)&&(s[3] == 0)&&(s[2] == Threshold)){
+//    //やや左
+//      control_sarvo(-5);
+//  }else if ((s[0] == Threshold)&&(s[1] == Threshold)){
+//    //やや右
+//     control_sarvo(5);
+//  }else if ((s[3] == Threshold)&&(s[4] == Threshold)){
+//    //やや左
+//     control_sarvo(-5);
+//  }else if ((s[1] == Threshold)&&(s[2] == Threshold)){
+//    //ちょい右
+//    control_sarvo(5);
+//  }else if ((s[2] == Threshold)&&(s[3] == Threshold)){
+//    //ちょい左
+//    control_sarvo(-5);
+//  }else if ((s[0] == Threshold)&&(s[1] == 1)&&(s[2] == 1)){
+//    //左
+//    control_sarvo(-35);
+//  }else if ((s[4] == Threshold)&&(s[3] == 1)&&(s[2] == 1)){
+//    //左
+//    control_sarvo(25);
+//  }
 

@@ -4,7 +4,7 @@
 #include <Servo.h>
 
 //pin info
-int control_servo = 5;
+//int control_servo = 5;
 int lance_servo = 6;
 int leftm = 9;
 int leftm1 = 10;
@@ -15,14 +15,14 @@ int f_right = 8;
 
 //variable
 int lance_pos = 0;
-int control_pos = 0;
+//int control_pos = 0;
 boolean frontm = true;
 Servo Lance_servo; 
 Servo Control_servo;
 
 void setup() {
   //init pinmode
-  pinMode(control_servo,OUTPUT);
+  //pinMode(control_servo,OUTPUT);
   pinMode(lance_servo,OUTPUT);
   pinMode(leftm,OUTPUT);
   pinMode(rightm,OUTPUT);
@@ -32,7 +32,7 @@ void setup() {
   pinMode(f_right,OUTPUT);
   
   Lance_servo.attach(lance_servo);
-  Control_servo.attach(control_servo);
+  //Control_servo.attach(control_servo);
 
   digitalWrite(leftm, HIGH);
   digitalWrite(leftm1, HIGH);
@@ -42,7 +42,7 @@ void setup() {
   
   
   
- control_sarvo(s_dpos + 0); 
+ 
  
   //serial open
   Serial.begin(9600);
@@ -53,26 +53,26 @@ void setup() {
 void loop() {
    
    
-//    // Receive buffer cheak 
-  if ( Serial.available() >= sizeof(char)) {
-    // check header
-       char chk =  Serial.read();
-       if (chk == 'A'){
-         chk_pos(0);
-       }else if(chk == 'B' ){
-        chk_pos(3);
-       }else if (chk == 'C'){
-        chk_pos(-3);
-       }else if  (chk == 'D'){
-        chk_pos(-5);
-       }else if  (chk == 'E'){
-        chk_pos(5);
-       }else if  (chk == 'F'){
-        //chk_pos(-30);
-       }else if  (chk == 'G'){
-        //chk_pos(15);
-       }           
-  }
+////    // Receive buffer cheak 
+//  if ( Serial.available() >= sizeof(char)) {
+//    // check header
+//       char chk =  Serial.read();
+//       if (chk == 'A'){
+//         chk_pos(0);
+//       }else if(chk == 'B' ){
+//        chk_pos(3);
+//       }else if (chk == 'C'){
+//        chk_pos(-3);
+//       }else if  (chk == 'D'){
+//        chk_pos(-5);
+//       }else if  (chk == 'E'){
+//        chk_pos(5);
+//       }else if  (chk == 'F'){
+//        //chk_pos(-30);
+//       }else if  (chk == 'G'){
+//        //chk_pos(15);
+//       }           
+//  }
 }
 void chk_pos(int test){
   control_sarvo(s_dpos + test); 
