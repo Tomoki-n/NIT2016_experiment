@@ -1,12 +1,13 @@
 //mainboard
-#define reading_sensor true
-#define  s_dpos  96
+#define reading_sensor false
+#define  s_dpos  90
 #define  l_dpos  0
 #include <Servo.h>
 
 //pin info 
 int left2 = 19;
 int left1 = 2;
+
 int center = 4;
 int right1 = 7;
 int right2 = 8;
@@ -20,18 +21,24 @@ int Threshold = 0;
 
 Servo Control_servo;
 Servo Lance_servo; 
-
+unsigned long time;
+unsigned long chktime;
+ 
 int lfm = 9;
 int rfm = 10;
 int lbm = 3;
 int rbm = 11;
 
+boolean chk_mark = false;
+boolean first = true;
 //sensors read to store value
 int s[5];
 int ss[2];
 int j = 0;
 int i = 0;
 
+int p = 0;
+int chk = 0;
 
 void setup() {
   //init pinmode
@@ -60,19 +67,20 @@ void setup() {
  Control_servo.attach(control_servo);
  Lance_servo.attach(lance_servo);
   
+ chk_lance(0);
  chk_pos(0); 
    //serial open
   Serial.begin(9600);
 }
 
 void loop() {
-
+  time = millis();
   read_sensor();
- 
+
   value_pos();
   value_lance();
-
-  
+  pwm_chk();
+  p++;
 }
 
 
@@ -89,7 +97,7 @@ void chk_lance(int test) {
 
 
 void lance_sarvo(int pos){
-    Lance_servo.write(pos);
+    Lance_servo.write(l_dpos + pos);
 } 
 
 void control_sarvo(int pos){
@@ -101,22 +109,15 @@ void control_sarvo(int pos){
 
 void value_pos(){
 
-//大きな条件から細かな条件へ
-  if((s[2] == Threshold)&&(s[3] == Threshold)&&(s[4] == Threshold)){
-    //ちょい左
-     chk_pos(-3);
-  }else if ((s[1] == Threshold)&&(s[2] == Threshold)&&(s[3] == Threshold)){
+  if((s[1] == Threshold)&&(s[2] == Threshold)&&(s[3] == Threshold)){
     //真ん中
      chk_pos(0);
-  }else if ((s[1] == Threshold)&&(s[2] == 1)&&(s[3] == Threshold)){
-    //ちょい右
-    chk_pos(3);
+  }else if ((s[2] == Threshold)&&(s[3] == Threshold)&&(s[4] == Threshold)){
+    ////ちょい左
+     chk_pos(-3);
   }else if ((s[0] == Threshold)&&(s[1] == Threshold)&&(s[2] == Threshold)){
-    //ちょい右
-       chk_pos(3);
-  }else if ((s[2] == Threshold)&&(s[3] == 0)&&(s[2] == Threshold)){
-    //やや左
-      chk_pos(-5);
+    ////ちょい左
+     chk_pos(3);
   }else if ((s[0] == Threshold)&&(s[1] == Threshold)){
     //やや右
      chk_pos(5);
@@ -125,29 +126,53 @@ void value_pos(){
      chk_pos(-5);
   }else if ((s[1] == Threshold)&&(s[2] == Threshold)){
     //ちょい右
-    chk_pos(5);
+    chk_pos(3);
   }else if ((s[2] == Threshold)&&(s[3] == Threshold)){
     //ちょい左
-    chk_pos(-5);
-  }else if ((s[0] == Threshold)&&(s[1] == 1)&&(s[2] == 1)){
-    //左
-    chk_pos(-35);
-  }else if ((s[4] == Threshold)&&(s[3] == 1)&&(s[2] == 1)){
-    //左
-    chk_pos(25);
+    chk_pos(-3);
+  }else if ((s[4] == Threshold)&&chk_mark ){
+    //ちょい左
+    chk_pos(-25);
+  }else if ((s[0] == Threshold)&&chk_mark ){
+    //ちょい左
+    chk_pos(15);
   }
   
- 
+  
 }
 
 void value_lance(){
   if ((ss[0] == 0) && (ss[1]==1)){
     chk_lance(0);
   }else if  ((ss[0] == 1) && (ss[1]==0)){
-    chk_lance(1);
+    chk_lance(180);
   }
 }
 
+void pwm_chk(){
+   if ((ss[0] == 0) && (ss[1]==0)){
+      if(!chk_mark&&((time - chktime) > 1500)||first){
+      digitalWrite(lfm,LOW);
+      digitalWrite(rfm,LOW);
+      analogWrite(lbm,0);
+      analogWrite(rbm,0);
+      delay(100);
+      analogWrite(lbm,210);
+      analogWrite(rbm,210);
+      chk_mark = true;
+      first = false;
+      chktime = time;
+      }else if (chk_mark&&((time - chktime) > 1500)){
+      digitalWrite(lfm,HIGH);
+      digitalWrite(rfm,HIGH);
+      chk_mark = false;
+      analogWrite(lbm,255);
+      analogWrite(rbm,255);
+      chktime = time;
+      }
+   }
+   
+}
 
 
 void sensor_array_reset(){
