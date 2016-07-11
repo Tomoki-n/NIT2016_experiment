@@ -48,6 +48,8 @@ int i = 0;
 int p = 0;
 int chk = 0;
 
+int linecount = 0;
+
 void setup() {
   //init pinmode
   
@@ -148,8 +150,8 @@ void value_pos(){
 }
 
 void curve_line(){
-        analogWrite(lbm,155);
-        analogWrite(rbm,225);
+    analogWrite(lbm,155);
+    analogWrite(rbm,225);
  if ((time - curvetime) > 1200){
     chk_pos(-20);
  }else if((time - curvetime) > 1000){
@@ -167,13 +169,14 @@ void curve_line(){
 void value_lance(){
   if ((ss[0] == 0) && (ss[1]==1)){
      chk_lance(0);
-     if(((time - chkline) > 1000)||first_line){ 
-        chkline = time;
-        
-     }
+     
   }else if  ((ss[0] == 1) && (ss[1]==0)){
     chk_lance(180);
-    
+    if(((time - chkline) > 1000)||first_line){ 
+         chkline = time;
+         firstline = false;
+         linecount += 1; 
+      }
   }
 }
 
@@ -193,6 +196,7 @@ void pwm_chk(){
         curvetime = time;
         chktime = time;
         st_time = time;
+        linecount = 0; 
       }else if (chk_mark&&((time - chktime) > 1500)){
         digitalWrite(lfm,HIGH);
         digitalWrite(rfm,HIGH);
@@ -213,7 +217,11 @@ void pwm_chk(){
         chktime = time;
         curvetime = 0;
    }
-   
+
+   if (linecount => 2){
+      digitalWrite(lfm,LOW);
+      digitalWrite(rfm,LOW);
+   }
 }
 
 
