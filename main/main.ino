@@ -1,6 +1,6 @@
 //mainboard
-#define reading_sensor true
-#define  s_dpos  93
+#define reading_sensor false
+#define  s_dpos  92
 #define  l_dpos  0
 #include <Servo.h>
 
@@ -15,6 +15,7 @@ int left3 = 12;
 int right3 = 13;
 int control_servo = 5;
 int lance_servo = 6;
+
 
 
 int Threshold = 0;
@@ -45,8 +46,14 @@ int ss[2];
 int j = 0;
 int i = 0;
 
+int lss[10];
+int rss[10];
+int scount = 0;
+boolean sschk = false;
+
 int p = 0;
 int chk = 0;
+
 
 int linecount = 0;
 
@@ -122,7 +129,7 @@ void value_pos(){
      chk_pos(2);
   }else if ((s[0] == Threshold)&&(s[1] == Threshold)&&chk_mark){
     //やや右
-     chk_pos(8);
+     chk_pos(5);
   }else if ((s[3] == Threshold)&&(s[4] == Threshold)&&chk_mark){
     //やや左
      chk_pos(-8);
@@ -150,52 +157,47 @@ void value_pos(){
 }
 
 void curve_line(){
-    analogWrite(lbm,155);
-    analogWrite(rbm,225);
  if ((time - curvetime) > 1200){
-    chk_pos(-20);
+    chk_pos(-18);
  }else if((time - curvetime) > 1000){
-    chk_pos(-23);
+    chk_pos(-22);
  }else if((time - curvetime) > 800){
-    chk_pos(-28);
+    chk_pos(-24);
  }else if((time - curvetime) > 500){
-    chk_pos(-35);
+    chk_pos(-30);
   
  }else{
-   chk_pos(-20);
+   chk_pos(-23);
  }
 }
 
 void value_lance(){
   if ((ss[0] == 0) && (ss[1]==1)){
-     chk_lance(0);
+     chk_lance(20);
      
   }else if  ((ss[0] == 1) && (ss[1]==0)){
-    chk_lance(180);
-    if(((time - chkline) > 1000)||first_line){ 
-         chkline = time;
-         firstline = false;
-         linecount += 1; 
-      }
+    chk_lance(160);
+
   }
 }
 
 
 void pwm_chk(){
+    
    if ((ss[0] == 0) && (ss[1]==0)){
       if(!chk_mark&&((time - chktime) > 1500)||first){     
         digitalWrite(lfm,LOW);
         digitalWrite(rfm,LOW);
-        analogWrite(lbm,0);
-        analogWrite(rbm,0);   
-        delay(200);
-        analogWrite(lbm,170);
-        analogWrite(rbm,210);
+        analogWrite(lbm,230);
+        analogWrite(rbm,255);
+        chk_pos(-35);
+        delay(100);   
         chk_mark = true;
         first = false;
         curvetime = time;
         chktime = time;
         st_time = time;
+        sschk = false;
         linecount = 0; 
       }else if (chk_mark&&((time - chktime) > 1500)){
         digitalWrite(lfm,HIGH);
@@ -208,22 +210,26 @@ void pwm_chk(){
       }
    }
 
-   if(chk_mark&&(time - st_time) > 4000){
-        digitalWrite(lfm,HIGH);
-        digitalWrite(rfm,HIGH);
-        chk_mark = false;
-        analogWrite(lbm,255);
-        analogWrite(rbm,255);
+   
+   if(chk_mark&&(time - st_time) > 1300){
+        digitalWrite(lfm,LOW);
+        digitalWrite(rfm,LOW);
+        analogWrite(lbm,210);
+        analogWrite(rbm,230);
+        chk_pos(10);
         chktime = time;
         curvetime = 0;
    }
-
-   if (linecount => 2){
-      digitalWrite(lfm,LOW);
-      digitalWrite(rfm,LOW);
+    if(chk_mark&&(time - st_time) > 1700){
+        digitalWrite(lfm,HIGH);
+        digitalWrite(rfm,HIGH);
+         analogWrite(lbm,255);
+        analogWrite(rbm,255);
+        chk_pos(-10);
+         chk_mark = false;
    }
-}
 
+}
 
 void sensor_array_reset(){
     for(i=0;i<5;i++){
@@ -244,6 +250,7 @@ void read_sensor(){
     ss[0] = digitalRead(right3);
     ss[1] = digitalRead(left3);
 
+  
 //aaa
 //    s[0] = PIND & _BV(left2);
 //    s[1] = PIND & _BV(left1);
