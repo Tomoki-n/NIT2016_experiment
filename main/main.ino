@@ -1,6 +1,6 @@
 //mainboard
 #define reading_sensor true
-#define  s_dpos  95
+#define  s_dpos  93
 #define  l_dpos  0
 #include <Servo.h>
 
@@ -24,6 +24,7 @@ Servo Lance_servo;
 
 unsigned long time;
 unsigned long chktime;
+unsigned long chkline;
 unsigned long curvetime;
 unsigned long st_time;
  
@@ -34,6 +35,7 @@ int rbm = 11;
 
 boolean chk_mark = false;
 boolean first = true;
+boolean first_line = true;
 
 int total_value = 0;
 
@@ -134,10 +136,10 @@ void value_pos(){
   }else if ((s[3] == Threshold)&&(s[4] == Threshold)){
     //やや左
      chk_pos(-3);
-  }else if ((s[4] == Threshold)&&chk_mark ){
+  }else if ((s[4] == Threshold)&&chk_mark){
     //左
     curve_line();
-  }else if ((s[0] == Threshold)&&chk_mark ){
+  }else if ((s[0] == Threshold)&&chk_mark){
     //右
     chk_pos(15);
   }
@@ -146,14 +148,16 @@ void value_pos(){
 }
 
 void curve_line(){
+        analogWrite(lbm,155);
+        analogWrite(rbm,225);
  if ((time - curvetime) > 1200){
     chk_pos(-20);
  }else if((time - curvetime) > 1000){
     chk_pos(-23);
  }else if((time - curvetime) > 800){
-    chk_pos(-25);
- }else if((time - curvetime) > 500){
     chk_pos(-28);
+ }else if((time - curvetime) > 500){
+    chk_pos(-35);
   
  }else{
    chk_pos(-20);
@@ -162,23 +166,28 @@ void curve_line(){
 
 void value_lance(){
   if ((ss[0] == 0) && (ss[1]==1)){
-    chk_lance(0);
+     chk_lance(0);
+     if(((time - chkline) > 1000)||first_line){ 
+        chkline = time;
+        
+     }
   }else if  ((ss[0] == 1) && (ss[1]==0)){
     chk_lance(180);
+    
   }
 }
 
 
 void pwm_chk(){
    if ((ss[0] == 0) && (ss[1]==0)){
-      if(!chk_mark&&((time - chktime) > 1500)||first){
+      if(!chk_mark&&((time - chktime) > 1500)||first){     
         digitalWrite(lfm,LOW);
         digitalWrite(rfm,LOW);
         analogWrite(lbm,0);
-        analogWrite(rbm,0);
-        delay(100);
-        analogWrite(lbm,180);
-        analogWrite(rbm,200);
+        analogWrite(rbm,0);   
+        delay(200);
+        analogWrite(lbm,170);
+        analogWrite(rbm,210);
         chk_mark = true;
         first = false;
         curvetime = time;
