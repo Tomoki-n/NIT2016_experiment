@@ -1,4 +1,21 @@
-//mainboard
+#define portOfPin(P)\
+  (((P)>=0&&(P)<8)?&PORTD:(((P)>7&&(P)<14)?&PORTB:&PORTC))
+#define ddrOfPin(P)\
+  (((P)>=0&&(P)<8)?&DDRD:(((P)>7&&(P)<14)?&DDRB:&DDRC))
+#define pinOfPin(P)\
+  (((P)>=0&&(P)<8)?&PIND:(((P)>7&&(P)<14)?&PINB:&PINC))
+#define pinIndex(P)((uint8_t)(P>13?P-14:P&7))
+#define pinMask(P)((uint8_t)(1<<pinIndex(P)))
+
+#define pinAsInput(P) *(ddrOfPin(P))&=~pinMask(P)
+#define pinAsInputPullUp(P) *(ddrOfPin(P))&=~pinMask(P);digitalHigh(P)
+#define pinAsOutput(P) *(ddrOfPin(P))|=pinMask(P)
+#define digitalLow(P) *(portOfPin(P))&=~pinMask(P)
+#define digitalHigh(P) *(portOfPin(P))|=pinMask(P)
+#define isHigh(P)((*(pinOfPin(P))& pinMask(P))>0)
+#define isLow(P)((*(pinOfPin(P))& pinMask(P))==0)
+#define digitalState(P)((uint8_t)isHigh(P))
+
 #define reading_sensor false
 #define  s_dpos  92
 #define  l_dpos  0
@@ -28,7 +45,8 @@ unsigned long chktime;
 unsigned long chkline;
 unsigned long curvetime;
 unsigned long st_time;
- 
+
+
 int lfm = 9;
 int rfm = 10;
 int lbm = 3;
@@ -50,6 +68,8 @@ int lss[10];
 int rss[10];
 int scount = 0;
 boolean sschk = false;
+unsigned long sensor_count;
+
 
 int p = 0;
 int chk = 0;
@@ -95,10 +115,10 @@ void loop() {
   read_sensor();
   value_pos();
   value_lance();
+  chk_past_sensor();
   pwm_chk();
 
 }
-
 
 
 
@@ -182,8 +202,13 @@ void value_lance(){
 }
 
 
+void chk_past_sensor(){
+  
+  
+  
+}
+
 void pwm_chk(){
-    
    if ((ss[0] == 0) && (ss[1]==0)){
       if(!chk_mark&&((time - chktime) > 1500)||first){     
         digitalWrite(lfm,LOW);
@@ -232,6 +257,7 @@ void pwm_chk(){
 }
 
 void sensor_array_reset(){
+    
     for(i=0;i<5;i++){
         s[i] = 1; 
     } 
@@ -250,6 +276,15 @@ void read_sensor(){
     ss[0] = digitalRead(right3);
     ss[1] = digitalRead(left3);
 
+    lss[scount] = ss[0];
+    rss[scount] = ss[1];
+    scount += 1;
+
+    if scount == 10 {
+      scount = 0;
+      
+    }
+    
   
 //aaa
 //    s[0] = PIND & _BV(left2);
