@@ -1,9 +1,9 @@
 #define portOfPin(P)\
-  (((P)>=0&&(P)<8)?&PORTD:(((P)>7&&(P)<14)?&PORTB:&PORTC))
+(((P)>=0&&(P)<8)?&PORTD:(((P)>7&&(P)<14)?&PORTB:&PORTC))
 #define ddrOfPin(P)\
-  (((P)>=0&&(P)<8)?&DDRD:(((P)>7&&(P)<14)?&DDRB:&DDRC))
+(((P)>=0&&(P)<8)?&DDRD:(((P)>7&&(P)<14)?&DDRB:&DDRC))
 #define pinOfPin(P)\
-  (((P)>=0&&(P)<8)?&PIND:(((P)>7&&(P)<14)?&PINB:&PINC))
+(((P)>=0&&(P)<8)?&PIND:(((P)>7&&(P)<14)?&PINB:&PINC))
 #define pinIndex(P)((uint8_t)(P>13?P-14:P&7))
 #define pinMask(P)((uint8_t)(1<<pinIndex(P)))
 
@@ -16,9 +16,11 @@
 #define isLow(P)((*(pinOfPin(P))& pinMask(P))==0)
 #define digitalState(P)((uint8_t)isHigh(P))
 
-#define reading_sensor false
-#define  s_dpos  92
+#define reading_sensor true
+
+#define  s_dpos  93
 #define  l_dpos  0
+
 #include <Servo.h>
 
 //pin info 
@@ -80,24 +82,24 @@ int linecount = 0;
 void setup() {
   //init pinmode
   
-  pinMode(center,INPUT_PULLUP);
-  pinMode(left1,INPUT_PULLUP);
-  pinMode(right1,INPUT_PULLUP);
-  pinMode(left2,INPUT_PULLUP);
-  pinMode(right2,INPUT_PULLUP);
-  pinMode(left3,INPUT_PULLUP);
-  pinMode(right3,INPUT_PULLUP);
+  pinAsInputPullUp(center);
+  pinAsInputPullUp(left1);
+  pinAsInputPullUp(right1);
+  pinAsInputPullUp(left2);
+  pinAsInputPullUp(right2);
+  pinAsInputPullUp(left3);
+  pinAsInputPullUp(right3);
  
-  pinMode(control_servo,OUTPUT);
-  pinMode(lance_servo,OUTPUT);
+  pinAsOutput(control_servo);
+  pinAsOutput(lance_servo);
 
-  pinMode(lfm,OUTPUT);
-  pinMode(rfm,OUTPUT);
-  pinMode(lbm,OUTPUT);
-  pinMode(rbm,OUTPUT);
+  pinAsOutput(lfm);
+  pinAsOutput(rfm);
+  pinAsOutput(lbm);
+  pinAsOutput(rbm);
 
-  digitalWrite(lfm,HIGH);
-  digitalWrite(rfm,HIGH);
+  digitalHigh(lfm);
+  digitalHigh(rfm);
   analogWrite(lbm,255);
   analogWrite(rbm,255);
   
@@ -113,9 +115,9 @@ void setup() {
 void loop() {
   time = millis();
   read_sensor();
+  chk_past_sensor();
   value_pos();
   value_lance();
-  chk_past_sensor();
   pwm_chk();
 
 }
@@ -143,10 +145,10 @@ void value_pos(){
      chk_pos(0);
   }else if ((s[2] == Threshold)&&(s[3] == Threshold)&&(s[4] == Threshold)){
     ////ちょい左
-     chk_pos(-2);
+     chk_pos(-1);
   }else if ((s[0] == Threshold)&&(s[1] == Threshold)&&(s[2] == Threshold)){
     ////ちょい左
-     chk_pos(2);
+     chk_pos(1);
   }else if ((s[0] == Threshold)&&(s[1] == Threshold)&&chk_mark){
     //やや右
      chk_pos(5);
@@ -158,13 +160,13 @@ void value_pos(){
     chk_pos(3);
   }else if ((s[2] == Threshold)&&(s[3] == Threshold)){
     //ちょい左
-    chk_pos(-3);
+    chk_pos(-2);
   }else if ((s[0] == Threshold)&&(s[1] == Threshold)){
     //やや右
-     chk_pos(3);
+     chk_pos(2);
   }else if ((s[3] == Threshold)&&(s[4] == Threshold)){
     //やや左
-     chk_pos(-3);
+     chk_pos(-4);
   }else if ((s[4] == Threshold)&&chk_mark){
     //左
     curve_line();
@@ -203,20 +205,17 @@ void value_lance(){
 
 
 void chk_past_sensor(){
-  
-  
+
   
 }
 
 void pwm_chk(){
    if ((ss[0] == 0) && (ss[1]==0)){
       if(!chk_mark&&((time - chktime) > 1500)||first){     
-        digitalWrite(lfm,LOW);
-        digitalWrite(rfm,LOW);
+        digitalLow(lfm);
+        digitalLow(rfm);
         analogWrite(lbm,230);
-        analogWrite(rbm,255);
-        chk_pos(-35);
-        delay(100);   
+        analogWrite(rbm,255);   
         chk_mark = true;
         first = false;
         curvetime = time;
@@ -241,7 +240,6 @@ void pwm_chk(){
         digitalWrite(rfm,LOW);
         analogWrite(lbm,210);
         analogWrite(rbm,230);
-        chk_pos(10);
         chktime = time;
         curvetime = 0;
    }
@@ -250,7 +248,6 @@ void pwm_chk(){
         digitalWrite(rfm,HIGH);
          analogWrite(lbm,255);
         analogWrite(rbm,255);
-        chk_pos(-10);
          chk_mark = false;
    }
 
@@ -268,32 +265,15 @@ void sensor_array_reset(){
 
 void read_sensor(){
     //sensor_array_reset();
-    s[0] = digitalRead(left2);
-    s[1] = digitalRead(left1);
-    s[2] = digitalRead(center); 
-    s[3] = digitalRead(right1);
-    s[4] = digitalRead(right2);
-    ss[0] = digitalRead(right3);
-    ss[1] = digitalRead(left3);
+    s[0] = digitalState(left2);
+    s[1] = digitalState(left1);
+    s[2] = digitalState(center); 
+    s[3] = digitalState(right1);
+    s[4] = digitalState(right2);
+    ss[0] = digitalState(right3);
+    ss[1] = digitalState(left3);
 
-    lss[scount] = ss[0];
-    rss[scount] = ss[1];
-    scount += 1;
 
-    if scount == 10 {
-      scount = 0;
-      
-    }
-    
-  
-//aaa
-//    s[0] = PIND & _BV(left2);
-//    s[1] = PIND & _BV(left1);
-//    s[2] = PIND & _BV(center);
-//    s[3] = PINB & _BV(right1);
-//    s[4] = PINB & _BV(right2);
-//    side_s[0] = PINB & _BV(right3);
-//    side_s[1] = PINB & _BV(left3);
     if (reading_sensor){
       sensor_print(); 
     }
